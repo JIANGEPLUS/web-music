@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>轮播图</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+
+      * {
+        margin: 0;
+
+        padding: 0;
+
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f0f0f0;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+      }
+
+      .container {
+        width: 800px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        position: relative;
+      }
+
+      .slider {
+        height: 100%;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+      }
+
+      .slider_item {
+        width: 540px;
+
+        position: absolute;
+
+        overflow: hidden;
+
+        border-radius: 16px;
+
+        z-index: 0;
+
+        transition: all 0.45s ease-in-out;
+      }
+
+      .slider_item > img {
+        width: 100%;
+
+        display: block;
+      }
+
+      .slider_item.center {
+        width: 640px;
+
+        z-index: 2;
+      }
+
+      .slider_item.left {
+        transform: translateX(-200px);
+
+        z-index: 1;
+      }
+
+      .slider_item.right {
+        transform: translateX(200px);
+
+        z-index: 1;
+      }
+
+      .menu {
+        width: 100%;
+
+        height: 50px;
+
+        position: absolute;
+
+        z-index: 2;
+      }
+
+      .menu > .btn {
+        cursor: pointer;
+
+        width: 50px;
+
+        height: 100%;
+
+        background-color: rgba(0, 0, 0, 0.15);
+
+        border-radius: 50%;
+
+        padding: 14px;
+      }
+
+      .btn.btn_pre {
+        position: absolute;
+
+        left: 0;
+      }
+
+      .btn.btn_next {
+        position: absolute;
+
+        right: 0;
+      }
+
+      .btn > img {
+        width: 100%;
+
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="slider" id="slider">
+        <div class="slider_item left">
+          <img src="./img1.jpg" alt="" />
+        </div>
+
+        <div class="slider_item center">
+          <img src="./img2.jpg" alt="" />
+        </div>
+
+        <div class="slider_item right">
+          <img src="./img3.jpg" alt="" />
+        </div>
+
+        <div class="slider_item right">
+          <img src="./img4.jpg" alt="" />
+        </div>
+
+        <div class="slider_item right">
+          <img src="./img5.jpg" alt="" />
+        </div>
+
+        <div class="slider_item right">
+          <img src="./img6.jpg" alt="" />
+        </div>
+      </div>
+
+      <div class="menu">
+        <span class="btn btn_pre" onclick="pre()">
+          <img src="./left.png" alt="" />
+        </span>
+
+        <span class="btn btn_next" onclick="next()">
+          <img src="./right.png" alt="" />
+        </span>
+      </div>
+    </div>
+
+    <script>
+      const slider = document.getElementById('slider')
+
+      let current = 0
+
+      function change() {
+        const left =
+          (current - 1 + slider.children.length) % slider.children.length
+
+        const right = (current + 1) % slider.children.length
+
+        Array.from(slider.children).forEach((element, index) => {
+          element.className = 'slider_item'
+        })
+
+        slider.children[left].className = 'slider_item left'
+
+        slider.children[current].className = 'slider_item center'
+
+        slider.children[right].className = 'slider_item right'
+      }
+
+      function next() {
+        current = (current + 1) % slider.children.length
+
+        change()
+      }
+
+      function pre() {
+        current =
+          (current + slider.children.length - 1) % slider.children.length
+
+        change()
+      }
+
+      change()
+
+      setInterval(() => {
+        next()
+      }, 1000)
+    </script>
+  </body>
+</html>
