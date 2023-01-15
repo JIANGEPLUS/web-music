@@ -39,7 +39,6 @@ export default {
             {required: true, message: '请输入手机号', trigger: 'blur' }
           ],
         captcha: [
-          { required: true, message: '请输入验证码', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
         ],
       },
@@ -94,7 +93,7 @@ export default {
     },
           // 验证码登录
           async loginCode(){
-        const {data:res}=await this.$http.get('/login/cellphone',{params:{phone:this.phoneForm.phone,captcha:this.phoneForm.captcha,realIP:'116.25.146.177',timestamp: Date.now()}})
+        const {data:res}=await this.$http.get('/login/cellphone',{params:{phone:this.phoneForm.phone,captcha:this.phoneForm.captcha,timestamp: Date.now()}})
         console.log(res)
         if (res.code !== 200) return this.$message.error('登录失败')
         this.$message.success('登录成功')

@@ -2,7 +2,7 @@
   <div>
     <div class="container clearfix">
       <div class="slider" id="slider">
-        <div class="slider_item" :class="`list-${index}`" v-for="(item,index) in bannerlist" :key="index">
+        <div class="slider_item" v-for="(item,index) in bannerlist" :key="index">
           <img :src="item.imageUrl" alt="" />
         </div>
       </div>
@@ -31,9 +31,9 @@
 export default {
   mounted() {
     this.getBanner()
-    setInterval(() => {
-      this.next()
-    }, 5000)
+    // setInterval(() => {
+    //   this.next()
+    // }, 5000)
   },
   updated () {
     this.change()
@@ -53,6 +53,9 @@ export default {
       // itemleft[0].className='slider_item left'
       // itemright[0].className = 'slider_item right'
       // itemcurrent[0].className = 'slider_item center'
+      for (let index = 0; index < this.bannerlist.length; index++) {
+        itemparent[index].className='slider_item'
+      }
       itemparent[this.left].className='slider_item left'
       itemparent[this.right].className='slider_item right'
       itemparent[this.current].className='slider_item center'

@@ -10,7 +10,9 @@ import axios from 'axios';
 import '@/icons/iconfont/iconfont.css'
 
 // 设置baseurl做前缀
-axios.defaults.baseURL='http://120.79.228.172:3000'
+// axios.defaults.baseURL='http://120.79.228.172:3000'
+axios.defaults.baseURL='http://localhost:8082'
+
 // axios.create({
 //   baseURL:'http://120.79.228.172:3000',
 //   // withCredentials: true
