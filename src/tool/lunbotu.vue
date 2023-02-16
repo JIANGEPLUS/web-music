@@ -101,7 +101,7 @@ export default {
   justify-content: center;
   flex-direction:column;
   position: relative;
-  border: 1px solid;
+  // border: 1px solid;
 }
 
 .slider {

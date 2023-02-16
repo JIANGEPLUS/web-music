@@ -32,7 +32,10 @@ h6 {
     margin: 0;
     padding: 0
 }
-
+body{
+    font-family: "NotoSerifSC-Medium", sans-serif;
+    
+}
 h1,
 h2,
 h3,
@@ -289,6 +292,9 @@ th {
 .right {
     float: right;
 }
+.left{
+    float: left;
+}
 
 /* 清除边距塌陷和浮动 */
 .clearfix::after,
@@ -337,6 +343,11 @@ th {
 .flex_center {
     display: flex;
     justify-content: center;
+    align-items: center;
+}
+
+.flex_y_center{
+    display: flex;
     align-items: center;
 }
 

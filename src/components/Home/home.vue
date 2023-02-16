@@ -35,10 +35,23 @@ import Header from '@/components/Header/header.vue'
 import Main from '@/components/Main/main.vue'
 import Aside from '@/components/Asiede/aside.vue' 
 export default {
+  created () {
+    this.getUserInfo()
+  },
   components: {
     Header,
     Main,
     Aside
+  },
+  methods: {
+   async getUserInfo(){
+      const{data:res}=await this.$http.get('/user/account',{params:{}})
+      if(res.code==200){
+        this.$store.commit('getUserInfo',res.profile)
+      }
+      // console.log(res)
+
+    }
   }
 }
 </script>
@@ -63,7 +76,6 @@ export default {
 }
 .el-aside{
  border: 1px solid red;
- height: 300px;
 }
 </style>
 

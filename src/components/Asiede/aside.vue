@@ -9,8 +9,9 @@
     <el-menu
       default-active="2"
       class="el-menu-vertical-demo"
-      @close="handleClose">
-        <el-menu-item index="1-1">发现音乐</el-menu-item>
+      @close="handleClose"
+      router>
+        <el-menu-item index="/main/FindMusic">发现音乐</el-menu-item>
         <el-menu-item index="1-2">视频</el-menu-item>
         <el-menu-item index="1-2">关注</el-menu-item>
         <el-menu-item-group title="我的音乐" class="item_group_title">

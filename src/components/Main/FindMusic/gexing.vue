@@ -1,11 +1,13 @@
 <template>
   <div>
     <lunbotu></lunbotu>
+    <tuijiangedan></tuijiangedan>
   </div>
 </template>
 
 <script>
 import lunbotu from '@/tool/lunbotu.vue';
+import tuijiangedan from '@/components/Main/FindMusic/tuijiangedan.vue'
 export default {
   data () {
     return {
@@ -19,7 +21,8 @@ export default {
     // console.log(this.$refs.refsss)
     },
   components: {
-    lunbotu
+    lunbotu,
+    tuijiangedan
   }
 }
   

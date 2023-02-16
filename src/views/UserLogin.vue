@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <router-link to="/home">首页</router-link>
+    <router-link to="/">首页</router-link>
     <div class="login">
       <div class="logo_img">
         <img src="@/assets/logo.png">

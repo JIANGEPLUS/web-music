@@ -3,6 +3,7 @@
     <div class="QRimg">
       <img :src="imgbase64">
     </div>
+    <el-button type="primary" size="small" @click="checkQr">验证登录</el-button>
   </div>
 </template>
 
@@ -16,7 +17,8 @@ export default {
     return {
       unikey:'',
       qrurl:'',
-      imgbase64:''
+      imgbase64:'',
+      timer:''
     }
   },
   methods: {
@@ -31,16 +33,31 @@ export default {
     //此接口传入上一个接口生成的 key 可生成二维码图片的 base64 和二维码信息
     async getBase64(){
       console.log(this.unikey)
+      // window.clearInterval(this.timer)
       const {data:res}=await this.$http.get('/login/qr/create',{params:{key:this.unikey,qrimg:true,timestamp:Date.now()}})
       if (res.code !== 200) return this.$message.error('获取Qrkey失败')
         this.$message.success('获取url成功')
         this.qrurl=res.data.qrurl
         this.imgbase64=res.data.qrimg
         console.log(res)
+        // this.timer=window.setInterval(()=>{
+        //   if(this.checkQr()==800){
+        //     this.getQrKey()
+        //     window.clearInterval(this.timer)
+        //   }else if(this.checkQr()==803){
+        //     this.$message.success('登陆成功')
+        //   }
+          
+        // },5000)
     },
     async checkQr(){
       const {data:res}=await this.$http.get('/login/qr/check',{params:{key:this.unikey,timestamp:Date.now()}})
-      
+      if(res.code==803)
+      {
+        window.localStorage.setItem('musicCookie',res.cookie)
+      }
+      console.log(res)
+      return res.code
     }
   },
   watch: {
@@ -64,5 +81,10 @@ export default {
     width: 150px;
     height: 150px;
     border: 1px solid;
+  }
+  .el-button{
+    position: absolute;
+    left: 75%;
+    top: 85%;
   }
 </style>
