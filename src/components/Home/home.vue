@@ -21,7 +21,7 @@
               </el-main>
             </el-container>
             <el-footer>
-              <router-view name="footer"></router-view>
+              <Footer></Footer>
             </el-footer>
           </el-container>
       </el-container>
@@ -34,6 +34,7 @@
 import Header from '@/components/Header/header.vue'
 import Main from '@/components/Main/main.vue'
 import Aside from '@/components/Asiede/aside.vue' 
+import Footer from '@/components/Footer/footer.vue'
 export default {
   created () {
     this.getUserInfo()
@@ -41,7 +42,8 @@ export default {
   components: {
     Header,
     Main,
-    Aside
+    Aside,
+    Footer
   },
   methods: {
    async getUserInfo(){
@@ -50,6 +52,7 @@ export default {
         this.$store.commit('getUserInfo',res.profile)
       }
       // console.log(res)
+      // console.log(this.$store.state.uid)
 
     }
   }
@@ -69,7 +72,10 @@ export default {
  background-color: #fd5441;
 }
 .el-footer{
- background-color: gray;
+  // 因为.el-footer有行内样式
+  height: 90px !important;
+ background-color: white;
+ border-top: 1px solid gray;
 }
 .asidehight{
   height: 676px;

@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <el-input v-model="seartext" prefix-icon="el-icon-search" placeholder="请输入内容" @focus="getSearchHot"
-      @blur="closeSearchHot" class="seachInput"></el-input>
+      @blur="closeSearchHot" class="seachInput" @keydown.enter.native="handleEnter"></el-input>
     <div class="searchHot" v-show="searchhotshow">
       <div class="searchHistory"></div>
       <div class="Hot">
@@ -9,7 +9,7 @@
           热搜榜
         </div>
         <div ref="hotItemRef" class="Hotitem" :class="{ 'top-item': index < 3 }" v-for="(item, index) in searchHotList"
-          :key="index">
+          :key="index" @click="searchHotItem(item)">
           <div class="Itemindex font-24">{{ index+ 1 }}</div>
           <div class="Itemtext font-16">{{ item.searchWord }}</div>
           <div class="Iteamscore font-12">{{ item.score }}</div>
@@ -40,7 +40,6 @@ export default {
         if (res.code !== 200) return this.$message.error('获取热搜列表失败')
         // this.$message.success('获取热搜列表成功')
         this.searchHotList = res.data
-        console.log(this.hotVisible)
         console.log(this.searchHotList)
       }
       this.searchhotshow = true
@@ -49,11 +48,20 @@ export default {
     closeSearchHot() {
       this.searchhotshow = false
     },
-    load() {
-      this.loading = true
-      setTimeout(() => {
-        this.count += 2
-      }, 2000)
+    // 回车触发搜索事件
+    handleEnter(){
+      console.log('回车')
+      this.$router.push({
+          path:'/main/SearchList',
+          query:{
+            keywords:this.seartext
+        }
+        })
+    },
+    //搜索热门事件
+    searchHotItem(item){
+      this.seartext=item.searchWord
+      this.handleEnter()
     }
   },
 

@@ -37,7 +37,7 @@
           </el-col>
         </el-row>
         <!-- 歌单标签 -->
-        <el-row type="flex" v-if="playlist.tags.length>0">
+        <el-row type="flex" v-if="playlist.tags&&playlist.tags.length!=0">
           <div >{{ '标签：' }}</div>
           <!-- 在插值运算符中判断'/'什么时候需要 -->
           <router-link to="path" v-for="(item, index) in playlist.tags"
@@ -52,38 +52,41 @@
     </el-row>
     <!-- 歌曲列表tags -->
     <el-row class="songstag">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleTabClick(parentPath,activeName,id)">
         <el-tab-pane label="歌曲列表" name="songlist"></el-tab-pane>
         <el-tab-pane :label="`评论(${playlist.commentCount})`" name="pinglun"></el-tab-pane>
       </el-tabs>
     </el-row>
     <!-- 歌单区域和评论区域 -->
-    <router-view :props="{ playlist: playlist ,uid:uid}"></router-view>
+    <router-view :nameid="'gedan'" :songArray="songArray"></router-view>
   </div>
 </template>
 
 <script>
+import {handleTabClick,getGedanData,getSongArray} from '@/api/api_main.js'
 import dayjs from 'dayjs'
 export default {
   created() {
     // vuex传值
     // this.gedanid = this.$store.state.gedanid
     // 路由url传值
-    this.gedanid=this.$route.query.gedanid
-    this.$store.commit('editGedanId',this.gedanid)
+    this.id=this.$route.query.id
+    // this.$store.commit('editGedanId',this.idid)
     // console.log(this.$route.query.gedanid)
     // 先获取喜欢列表
     // this.getlikeArray()
     // 生成歌单
     this.getGedanData()
-    // this.getSongArray()
-    this.getUserInfo()
-    // this.isLiked()
+    this.getSongArray()
   },
   data() {
     return {
-      activeName: '',
-      gedanid: '',
+      // 当前父路由所有地址
+      parentPath :this.$route.path.substring(0, this.$route.path.lastIndexOf('/')+1),
+      // name:'gedan',
+      // 获取路由最后一个path，来确定现在点击激活的组件
+      activeName: this.$route.path.split("/").pop(),
+      id: '',
       playlist: {
         creator: {}
       },
@@ -91,38 +94,57 @@ export default {
       songArray: [],
       // 喜欢歌曲数组
       likeArray: [],
-      // 用户id
-      uid: ''
     }
   },
   methods: {
+    handleTabClick,
     dayjs,
-    async getUserInfo(){
-      const{data:res}=await this.$http.get('/user/account')
-      if(res.code==200){
-        this.uid=res.account.id
-      }
-    },
     // 标签跳转路由选着歌单界面还是评论界面
     handleClick() {
       if(this.$route.path!=='/main/gedanpage/' + this.activeName){
         this.$router.push({
           path:'/main/gedanpage/' + this.activeName,
           query:{
-            gedanid:this.gedanid
+            id:this.id
         }
         })
       }
     },
-    // 获取目标歌单页面数据
+    // 获取目标歌单页面数据,获取歌单详情
     async getGedanData() {
-      const { data: res } = await this.$http.get('/playlist/detail', { params: { id: this.gedanid } })
+      const { data: res } = await getGedanData(this.id)
       if (res.code == 200) {
-        this.playlist = res.playlist
+        this.playlist = res.playlist  
       }
+      // 存取当前歌单list入vuex
+      
       // console.log(res)
 
     },
+    // 获取歌单歌曲列表
+    async getSongArray() {
+      const { data: res } = await getSongArray(this.id)
+      if (res.code == 200) {
+          this.songArray=res.songs
+          // this.$store.commit('setMusicList',this.songArray)
+          // console.log(this.$store.state)
+      }
+      
+      // console.log(res)
+    },
+  },
+  watch: {
+    // 监听路由的变化
+    '$route.query': function(newQuery, oldQuery) {
+      // 判断需要重新渲染的条件
+      if (newQuery.id !== oldQuery.id) {
+        // 执行重新渲染组件的操作
+        this.id=this.$route.query.id
+        this.activeName= this.$route.path.split("/").pop(),
+        this.getGedanData()
+        this.getSongArray()
+      }
+    }
   }
 }
 </script>
@@ -149,7 +171,7 @@ export default {
   .gedan_div {
     color: red;
     width: 30px;
-    // border: 1px solid red;
+    border: 1px solid red;
   }
 
   .name_div {

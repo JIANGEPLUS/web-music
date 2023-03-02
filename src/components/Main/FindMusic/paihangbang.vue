@@ -36,7 +36,7 @@
     <!--全球榜 -->
     <h3 class="">全球榜</h3>
     <div class="image-grid mtop-20">
-      <div v-for="item in toplist.topArray.slice(4)" :key="item.id" class="grid-item">
+      <div v-for="item in toplist.topArray.slice(4)" :key="item.id" class="grid-item" @click="toGeDan(item.id)">
         <img :src="item.coverImgUrl" />
         <div class="play-count"><i class="el-icon-video-play"></i>{{ numberFormat(item.playCount) }}</div>
         <div class="text">{{ item.name }}</div>
@@ -168,6 +168,9 @@ export default {
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+    .grid-item:hover{
+      cursor: pointer;
     }
 
     .grid-item img {

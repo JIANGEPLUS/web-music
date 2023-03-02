@@ -1,7 +1,12 @@
 [class^="icon-music-"], [class*="icon-music-"]
 {
   font-family:"iconfont" !important;
-  font-size:16px;
+  /* margin-right: 5px; */
+  padding: 0 2px;
+  width: 24px;
+  text-align: center;
+  font-size: 18px;
+  vertical-align: middle;
   font-style:normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

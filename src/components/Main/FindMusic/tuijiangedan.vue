@@ -110,6 +110,9 @@ export default {
   top:5px;
   left: 110px;
   color: #fff;
+  .el-icon-video-play{
+    margin-right: 10px;
+  }
 }
 // 歌单名字
 .name{

@@ -18,7 +18,8 @@ export default {
       unikey:'',
       qrurl:'',
       imgbase64:'',
-      timer:''
+      timer:'',
+      time:0
     }
   },
   methods: {
@@ -55,6 +56,17 @@ export default {
       if(res.code==803)
       {
         window.localStorage.setItem('musicCookie',res.cookie)
+        this.$message.success('登录成功，即将返回首页')
+        this.time=3
+    this.timer=window.setInterval(()=>{
+        this.time--
+        this.$message.success('即将返回首页,还有'+this.time+'秒')
+        if(this.time===0){
+            window.clearInterval(this.timer)
+            this.$router.push('/main/FindMusic')
+          }
+        },1000)
+        
       }
       console.log(res)
       return res.code
