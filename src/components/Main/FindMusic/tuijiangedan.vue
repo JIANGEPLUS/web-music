@@ -51,7 +51,7 @@ export default {
       }else{
         console.log(res.code)
       }
-      console.log(res)
+      // console.log(res)
     }
   }
 }

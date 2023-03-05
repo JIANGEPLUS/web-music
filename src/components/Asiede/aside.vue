@@ -20,7 +20,7 @@
         </el-menu-item-group>
         <el-menu-item-group title="我的歌单" class="item_group_title">
           <!-- Userplaylist排除掉我喜欢的音乐和每日推荐的歌单 -->
-          <el-menu-item :index="String(playlist.id)" v-for="playlist in Userplaylist.slice(1)" :key="playlist.id" :route="'/main/gedanpage/songlist?id='+playlist.id">
+          <el-menu-item  :index="String(playlist.id)" v-for="playlist in Userplaylist.slice(1)" :key="playlist.id" :route="'/main/gedanpage/songlist?id='+playlist.id">
             <i class="icon-music-faxian"></i>
             <div class="content">{{  playlist.name  }}</div>
           </el-menu-item>
@@ -37,7 +37,12 @@ export default {
   },
   data () {
     return {
-      Userplaylist:[0,1],
+      Userplaylist:[
+        {
+          id:0
+        },
+        {}
+      ],
       active:'FindMusic'
     }
   },
@@ -50,13 +55,21 @@ export default {
     // 获取用户歌单
     async getUserplaylist(){
       const { data: res } = await this.$http.get('/user/playlist',{params:{uid:this.uid}})
-      this.Userplaylist=res.playlist
+      if(res.code==200){
+        this.Userplaylist=res.playlist
+      }
+      
       // console.log(this.Userplaylist)
     }
   },
   computed: {
     uid(){
-      return this.$store.getters.doneuserinfo.userId;
+      if(this.$store.getters.doneuserinfo){
+        return this.$store.getters.doneuserinfo.userId;
+      }
+      else{
+        return ''
+      }
     }
   },
   watch: {

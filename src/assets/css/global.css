@@ -331,8 +331,10 @@ th {
     box-shadow: inset 0 0 3px #e0e0e0;
     background-color: #e0e0e0;
 }
-
-
+/* 弹出框样式 */
+.el-popover{
+    min-width: auto;
+}
 /* 全局flex垂直居中加空隙分布两端  */
 .flex-around {
     display: flex;

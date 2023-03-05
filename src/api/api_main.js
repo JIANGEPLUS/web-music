@@ -69,6 +69,14 @@ export function  searchTabClick(path,activeName,keywords) {
     })
   }
 }
+// 选中要播放的音乐
+export function  playMusic(vm,song) {
+    // 获取歌曲id
+    vm.setCurrenMusicId(song.id)
+    vm.getCurrenIndex(song.id)
+    vm.updateIspalying(true)
+    // vm.$store.getters.getMusicUrl
+}
 
 // 获得喜欢歌曲列表
 export const getlikeArray = () => axios.get('/likelist', { params: { timestamp: Date.now() } })
@@ -93,3 +101,6 @@ export const getGedanData= (id) => axios.get('/playlist/detail', { params: {id }
 
 //获取歌单所有歌曲
 export const getSongArray= (id,limit) => axios.get('/playlist/track/all', { params: {id,limit} })
+
+//退出登录
+export const logout= () => axios.get('/logout')

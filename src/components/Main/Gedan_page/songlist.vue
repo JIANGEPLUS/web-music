@@ -2,7 +2,7 @@
   <div>
     <!-- 歌单表格 -->
     <el-row class="main">
-      <el-table :data="songArray" stripe style="width: 100%" @cell-dblclick="playMusic">
+      <el-table :data="songArray" stripe style="width: 100%" @row-dblclick="selectMusic">
         <el-table-column type="index">
           <!-- 索引小于10时前面补0 -->
           <template slot-scope="scope">
@@ -14,7 +14,7 @@
           <template v-slot="{ row }">
             <div class="pointer " @click="likeMusic(row.id)">
               <i v-if="!isLiked(row.id)" class="icon-music-xihuan"></i>
-              <i v-else class="icon-music-xihuan-red"></i>
+              <i v-else class="icon-music-xihuan-red-copy"></i>
             </div>
           </template>
         </el-table-column>
@@ -40,7 +40,8 @@
 
 <script>
 import dayjs from 'dayjs'
-import { getMusicdetail,getMusicUrl } from '@/api/api_main'
+import { getMusicdetail,getMusicUrl,playMusic } from '@/api/api_main'
+import { mapActions, mapMutations } from 'vuex'
 export default {
   props: {
     nameid:{
@@ -60,10 +61,6 @@ export default {
     }
     // 先获取喜欢列表
     this.getlikeArray()
-    // console.log(this.$route.query)
-    // 生成歌单
-    // this.getSongArray()
-    // this.getUserInfo()
     this.isLiked()
   },
   data() {
@@ -79,25 +76,14 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['setMusicList','setCurrenMusicId','getCurrenIndex','setMusicUrl','updateIspalying']),
     dayjs,
-    async playMusic(row){
+    async selectMusic(row){
       // 获取歌曲详情
-      const{data:Musicdetail}=await getMusicdetail(row.id)
-      if(Musicdetail.code==200){
-        // 获取歌曲url
-          const{data:MusicUrl}=await getMusicUrl(row.id)
-          if(MusicUrl.code==200)
-          {
-            for(let i=0;i<MusicUrl.data.length;i++)
-            {
-              // 把url链接赋值到歌曲详情中
-              Musicdetail.songs[i].url=MusicUrl.data[i].url
-            }
-            // 存入数据到vuex
-            this.$store.commit('updateMusicInfo',Musicdetail.songs)
-          };
-        }
-        console.log(Musicdetail.songs)     
+      this.setMusicList(this.songArray)
+      playMusic(this,row)
+      // this.getMusicUrl()
+      console.log(row)     
     },
     // async getUserInfo(){
     //   const{data:res}=await this.$http.get('/user/account')
@@ -105,7 +91,15 @@ export default {
     //     this.uid=res.account.id
     //   }
     // }
-
+    // 获取当前播放歌曲的url
+    async getMusicUrl() {
+      const { data: res } = await getMusicUrl(this.currenMusicId)
+      if (res.code == 200) {
+        
+        this.setMusicUrl(res.data[0].url) 
+        // console.log(this.Music)
+      }
+    },    
     // 获得喜欢歌曲列表
     async getlikeArray() {
       const { data: res } = await this.$http.get('/likelist', { params: { timestamp: Date.now() } })
@@ -133,17 +127,15 @@ export default {
         this.songArray = this.songArray.slice(0)
       }
     }
+  },
+  computed: {
+    ...mapActions(['musicUrl'])
   }
 }
 </script>
 
 <style lang="less" scoped>
-.el-table-column{
-  div{
 
-  }
-
-}
 .overflow{
   white-space: nowrap;
   overflow: hidden;

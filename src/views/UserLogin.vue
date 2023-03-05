@@ -28,8 +28,8 @@ export default {
   },
   data () {
     return {
-      iscodePage:true,
-      isqrPage:false
+      iscodePage:false,
+      isqrPage:true
       }
     },
   methods: {

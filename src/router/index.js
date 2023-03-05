@@ -23,7 +23,6 @@ import searchVideo from '@/components/Main/Search/searchVideo.vue'
 import searchMusicList from '@/components/Main/Search/searchMusicList.vue'
 import MyLike from '@/components/Asiede/MyLike/mylike.vue'
 import Played from '@/components/Asiede/Played.vue'
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -35,6 +34,10 @@ const routes = [
   // ]},
   { path: '/login', component: Login },
   { path: '/main', component: Home,children:[
+    {
+      path: '/',
+      redirect: 'FindMusic',
+    },
     { path: 'FindMusic', component: FindMusic,children:[
       {
         path: '/',

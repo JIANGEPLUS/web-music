@@ -37,7 +37,7 @@ import Aside from '@/components/Asiede/aside.vue'
 import Footer from '@/components/Footer/footer.vue'
 export default {
   created () {
-    this.getUserInfo()
+    this.setUserInfo()
   },
   components: {
     Header,
@@ -46,12 +46,12 @@ export default {
     Footer
   },
   methods: {
-   async getUserInfo(){
+   async setUserInfo(){
       const{data:res}=await this.$http.get('/user/account',{params:{}})
       if(res.code==200){
-        this.$store.commit('getUserInfo',res.profile)
+        this.$store.commit('setUserInfo',res.profile)
       }
-      // console.log(res)
+      console.log(res)
       // console.log(this.$store.state.uid)
 
     }

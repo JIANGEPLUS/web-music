@@ -20,6 +20,8 @@ export default new Vuex.Store({
       totalTime: 0,
       currentTime: 0
     },
+    // 当前音乐url
+    musicUrl:'',
     /* 当前播放的id */
     currenMusicId: 0,
     /* 当前播放的列表下标 */
@@ -28,6 +30,9 @@ export default new Vuex.Store({
     historyList: [],
   },
   getters: {
+    getMusicUrl(state){
+      return state.musicUrl
+    },
     doneuserinfo(state){
       return state.userinfo
     },
@@ -35,16 +40,18 @@ export default new Vuex.Store({
       return state.musicinfo
     },
     getIspalying(state){
-      return state.ispalying
+      return state.isplaying
     },
     getcurrenTime(state){
       return state.currenMusicInfo.currentTime
-    }
+    },
   },
   mutations: {
-    getUserInfo(state,user){
+    setUserInfo(state,user){
       state.userinfo=user
-      state.uid=user.userId
+      if(user){
+        state.uid=user.userId
+      }
     },
     editGedanId (state,id) {
       state.gedanid=id
@@ -70,13 +77,43 @@ export default new Vuex.Store({
     setHistoryList(state,historyList){
       state.historyList=historyList
     },
-    setMusicList(state,musicList){
-      state.musicList=musicList
-    },
     setCurrenIndex(state,currenIndex){
       state.currenIndex=currenIndex
+    },
+    // 通过id找到歌曲下标
+    getCurrenIndex(state,id){
+      state.currenIndex=state.musicList.findIndex(item => item.id == id)
+    },
+    setMusicUrl(state,musicUrl){
+      state.musicUrl=musicUrl
+    },
+    reset(state){
+      state={
+        userinfo:{},
+        gedanid:'',
+        uid:'',
+        musicinfo:{
+          songs:[]
+        },
+        /* 播放列表 */
+        musicList: [],
+        //当前播放状态
+        isplaying:false,
+        /* 播放音乐的总时间和当前时间 */
+        currenMusicInfo: {
+          totalTime: 0,
+          currentTime: 0
+        },
+        // 当前音乐url
+        musicUrl:'',
+        /* 当前播放的id */
+        currenMusicId: 0,
+        /* 当前播放的列表下标 */
+        currenIndex: 0,
+        /* 最近播放列表 */
+        historyList: [],
+      }
     }
-    
   },
   actions: {
   },

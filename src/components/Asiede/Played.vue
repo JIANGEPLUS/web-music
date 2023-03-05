@@ -11,7 +11,7 @@
     </el-button-group>
         <!-- 歌单表格 -->
     <el-row class="main">
-      <el-table :data="playedlist.list" stripe style="width: 100%">
+      <el-table :data="playedlist.list" stripe style="width: 100%" @row-dblclick="playMusic">
         <el-table-column type="index">
           <!-- 索引小于10时前面补0 -->
           <template slot-scope="scope">
@@ -38,8 +38,9 @@
 </template>
 
 <script>
-import {getUserplayedlist} from '@/api/api_main.js'
+import {getUserplayedlist,playMusic} from '@/api/api_main.js'
 import dayjs from 'dayjs'
+import { mapMutations,mapState } from 'vuex'
 export default {
   created () {
     this.getUserplayedlist()
@@ -51,8 +52,23 @@ export default {
       }
     }
   },
+  computed: {
+    // ...mapState(['musicList', 'isplaying', 'currenMusicInfo', 'currenMusicId', 'currenIndex']),
+  },
   methods: {
+    ...mapMutations(['setMusicList','getCurrenIndex','setCurrenMusicId','updateIspalying']),
     dayjs,
+    playMusic(row){
+      let musicList=[]
+      musicList.push(row.data)
+      // console.log(this)
+      this.setMusicList(musicList)
+      playMusic(this,row.data)
+      // this.setCurrenIndex(0)
+      // this.setCurrenMusicId(row.data.id)
+      // this.updateIspalying(true)
+      // playMusic(row.data)
+    },
     async getUserplayedlist(){
       const {data:res}=await getUserplayedlist()
       if(res.code===200){

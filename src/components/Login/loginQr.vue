@@ -41,15 +41,6 @@ export default {
         this.qrurl=res.data.qrurl
         this.imgbase64=res.data.qrimg
         console.log(res)
-        // this.timer=window.setInterval(()=>{
-        //   if(this.checkQr()==800){
-        //     this.getQrKey()
-        //     window.clearInterval(this.timer)
-        //   }else if(this.checkQr()==803){
-        //     this.$message.success('登陆成功')
-        //   }
-          
-        // },5000)
     },
     async checkQr(){
       const {data:res}=await this.$http.get('/login/qr/check',{params:{key:this.unikey,timestamp:Date.now()}})
@@ -64,6 +55,7 @@ export default {
         if(this.time===0){
             window.clearInterval(this.timer)
             this.$router.push('/main/FindMusic')
+            window.location.reload()
           }
         },1000)
         

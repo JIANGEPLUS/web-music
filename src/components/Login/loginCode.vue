@@ -18,6 +18,7 @@
           </el-col>
         </el-row>
         <el-row class="buttonFrom">
+          <span class="nologin">因风控,验证码暂时无法登录,请选二维码登录</span>
           <el-button type="primary" @click="loginCode">登录</el-button>
           <el-button type="info" @click="reset">重置</el-button>
         </el-row>
@@ -135,5 +136,12 @@ export default {
     display: flex;
     margin-bottom: 20px;
     justify-content: flex-end;
+  }
+  .nologin{
+    display: inline-block;
+    width: 150px;
+    margin-right: auto;
+    text-align: left;
+    color: red;
   }
 </style>

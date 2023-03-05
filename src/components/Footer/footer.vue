@@ -1,13 +1,16 @@
 <template>
   <div class="footer">
-    <audio ref="player" :src="musicUrl" @timeupdate="updateCurrentTime"></audio>
+    <audio ref="player" :src="musicUrl" :volume="volume" @timeupdate="updateCurrentTime"></audio>
     <div v-if="musicInfo" class="left">
       <!-- <el-image style="width: 50px; height: 50px" 
         :src="musicInfo.songs[0].al.picUrl" fit="fit">
       </el-image> -->
       <img :src="musicInfo.al.picUrl" object-fit=contain>
       <div>
-        <div class="font-16 font-weight">{{ musicInfo.name }}</div>
+        <el-tooltip class="item" effect="dark" :content="musicInfo.name" placement="top">
+          <div class="font-16 font-weight">{{ musicInfo.name }}</div>
+        </el-tooltip>
+        
         <div>{{ musicInfo.ar.map(item => item.name).join('/') }}</div>
       </div>
     </div>
@@ -32,17 +35,37 @@
       <!-- 进度条 -->
       <div class="bar">
         <div class="time-text">{{ currentTimeFormat(currenMusicInfo.currentTime) }}</div>
-        <div class="progress-bar" @click="playMusic" ref="runfatbar">
+        <div class="progress-bar" @click="clickBar" ref="runfatbar">
           <div class="blue-bar" ref="runbar">
-            <span class="yuan"></span>
+            <span class="circle"></span>
           </div>
+          
         </div>
         <div class="right-time time-text">{{ currentTimeFormat(currenMusicInfo.totalTime) }}</div>
       </div>
     </div>
     <div class="right">
-
+      <div>
+        <!-- 音量气泡弹出框 -->
+        <el-popover placement="top" trigger="hover" width="100px" popper-class="popperClass">
+          <!-- 要使用slot="reference"才能显示图标 -->
+          <!-- 静音 -->
+          <i v-if="volume == 0" class="icon-music-music_mute volume" slot="reference" @click="volume"></i>
+          <i v-else class="icon-music-yinliang volume" slot="reference"></i>
+          <div class="volume-container">
+            <el-slider v-model="volume" :vertical="true" height="120px" @change="setVolume" />
+          </div>
+        </el-popover>
+      </div>
+      <!-- 阻止点击事件冒泡 -->
+      <div @click.stop>
+        <i @click="isplayList = !isplayList" class="icon-music-bofangliebiaoguanli"></i>
+          <!-- 播放列表显示 -->
+      <playList class="playList-div" v-show="isplayList" @playMusic="playMusic" @clickoutside="hidePlaylist"></playList>
+      </div>
     </div>
+
+
   </div>
 </template>
 
@@ -50,16 +73,29 @@
 import dayjs from 'dayjs'
 import { getUserplayedlist, getMusicUrl, getGedanData, getRecentPlayList, getSongArray } from '@/api/api_main';
 import { mapState, mapMutations } from 'vuex'
+import playList from './playList.vue'
 export default {
   created() {
     this.getUserplayedlist()
     this.getRecentPlayList()
   },
   mounted() {
+    // 给播放列表添加点击隐藏事件
+    document.body.addEventListener('click',()=>{
+            this.isplayList = false;
+        },false);
     this.setMusicDom()
+    // 设置初始音量
+    this.setVolume()
+  },
+  components: {
+    playList
   },
   data() {
     return {
+      dialogVisible: false,
+      volume: 50, // 设置默认值
+      oldVolume: 0, // 之前的音量
       // 图标是否有鼠标悬停
       menuIsHover: false,
       previousIsHover: false,
@@ -74,17 +110,25 @@ export default {
           }
         ]
       },
-      musicUrl: ''
-
+      // 播放列表是否可视
+      isplayList: false,
+      // 进度条
+      bar_model:0  
     }
   },
   methods: {
-    ...mapMutations(['updateIspalying']),
+    ...mapMutations(['updateIspalying', 'setCurrenMusicId', 'setCurrenIndex', 'getCurrenIndex', 'setCurrenTime','setMusicUrl','setMusicList','setTotalTime']),
     dayjs,
     // 获取音乐DOM，给DOM添加事件
-    setMusicDom(){
+    setMusicDom() {
       this.$nextTick(() => {
         const music = this.$refs.player;
+        if(!this.musicUrl){
+          this.setCurrenTime(0)
+          this.setTotalTime(0)
+          this.updateIspalying(false)
+          return
+        }
         music.addEventListener('canplay', () => {
           const music = this.$refs.player// 音频所在对象
           // console.log('music',this.$refs)
@@ -100,23 +144,42 @@ export default {
           })
           // 在这里获取到音频数据已经加载完成的状态
           // ...
+          // 音乐获取完后判断是否播放
+          if (this.isplaying) {
+            this.$refs.player.play()
+          } else {
+            this.$refs.player.pause()
+          }
         });
       });
     },
+    // 获取最近播放歌曲
     async getUserplayedlist() {
       const { data: res } = await getUserplayedlist(1)
       if (res.code === 200) {
+        if(res.data.list[0].data){
         // 获取最近播放歌曲的id存入vuex
+        let musiclist=[]
+        musiclist.push(res.data.list[0].data)
+          // 先把歌曲单独一个音乐列表
+        this.setMusicList(musiclist)
+        // console.log(musiclist)
         this.$store.commit('setCurrenMusicId', res.data.list[0].data.id)
+        // console.log(res.data.list[0].data.id)
+        }
 
-        console.log(res)
       }
     },
     // 获取当前播放歌曲的url
     async getMusicUrl() {
       const { data: res } = await getMusicUrl(this.currenMusicId)
       if (res.code == 200) {
-        this.musicUrl = res.data[0].url
+        this.setMusicUrl(res.data[0].url) 
+        if(this.musicUrl==null){
+          this.$message.error('平台暂时无版权,无法播放')
+          // this.$refs.player.pause()
+        }
+        this.setMusicDom()
         // console.log(this.Music)
       }
     },
@@ -125,40 +188,42 @@ export default {
       const { data: res } = await getRecentPlayList(10)
       if (res.code == 200) {
         // 初次默认播放列表为最近播放的歌单
-        this.getSongArray(res.data.list[0].data.id)
+        if(res.data){
+          this.getSongArray(res.data.list[0].data.id)
+        }
         // this.$store.commit('setMusicList',res.data.list)
-        // console.log(res)
       }
+      console.log(res)
     },
     // 获取目标歌单列表
     async getSongArray(id) {
       const { data: res } = await getSongArray(id)
       if (res.code == 200) {
-        this.$store.commit('setMusicList', res.songs)
+        console.log(this.musicList)
+        console.log(res.songs.findIndex(item=>item.id==this.currenMusicId))
+        // 如果歌曲不在歌单中，则单独一个歌单
+        if(res.songs.findIndex(item=>item.id==this.currenMusicId)!=-1){
+          this.setMusicList(res.songs)
+          console.log(this.musicList)
+        }
         //在得到歌单后，获取播放下标
-        this.getCurrenIndex()
+        this.getCurrenIndex(this.currenMusicId)
+        // console.log(res.songs)
       }
-      // 存取当前歌单list入vuex
-      // console.log(res)
-    },
-    // 获取当前歌曲在播放的歌单的列表下标
-    getCurrenIndex() {
-      let CurrenIndex = this.musicList.findIndex(item => item.id == this.currenMusicId)
-      console.log(CurrenIndex)
-      this.$store.commit('setCurrenIndex', CurrenIndex)
     },
     playing() {
-      const music = this.$refs.player;
       this.updateIspalying(!this.isplaying)
-      if (this.isplaying) {
-        music.play()
-      } else {
-        music.pause()
-      }
-      console.log(this.$refs)
+    },
+    // 播放歌曲
+    playMusic(song) {
+      // 获取歌曲id
+      console.log(song)
+      this.setCurrenMusicId(song.id)
+      this.getCurrenIndex(song.id)
+      this.updateIspalying(true)
     },
     // 点击进度条事件     
-    playMusic(e) {
+    clickBar(e) {
       const music = this.$refs.player// 音频所在对象
       const barWidth = e.offsetX / this.$refs.runfatbar.offsetWidth// 计算点击位置相对父元素总宽的比例
       this.$refs.runbar.style.width = `${barWidth * 100}%`// 进度条应所在的比例总宽
@@ -171,27 +236,33 @@ export default {
     // 切换到上一首歌曲
     PreviousMusic() {
       // 判断是否超出歌单列表范围
-      if(this.currenIndex==0){
-      this.$store.commit('setCurrenIndex', this.musicList.length)
-      }else{
-        this.$store.commit('setCurrenIndex', this.currenIndex-1)
+      if (this.currenIndex == 0) {
+        this.setCurrenIndex(this.musicList.length-1)
+      } else {
+        this.setCurrenIndex(this.currenIndex - 1)
       }
     },
     // 切换到下一首歌曲
-    nextMusic(){
+    nextMusic() {
       // 判断是否超出歌单列表范围
-      if(this.currenIndex==this.musicList.length){
-        this.$store.commit('setCurrenIndex', 0)
-      }else{
-        this.$store.commit('setCurrenIndex', this.currenIndex+1)
+      if (this.currenIndex == this.musicList.length-1) {
+        this.setCurrenIndex(0)
+
+      } else {
+        this.setCurrenIndex(this.currenIndex + 1)
+
       }
-      
+
     },
     updateCurrentTime() {
       let time = this.$refs.player.currentTime
       time = Math.floor(time)
-      this.$store.commit('setCurrenTime', time)
-      console.log(this.currenMusicInfo.currentTime)
+      // this.$store.commit('setCurrenTime', time)
+      this.setCurrenTime(time)
+      const musicWidth = this.$refs.runfatbar.offsetWidth// 底部进度条总宽      
+      // 每秒更新进度条
+      this.$refs.runbar.style.width=`${Math.floor(( time/ this.currenMusicInfo.totalTime)*musicWidth)}px` // 计算进度条所在比例
+      console.log(this.$refs.runbar.style.width)
     },
     currentTimeFormat(currentTime) {
       let ss = '00'
@@ -217,40 +288,70 @@ export default {
         }
         return mm + ':' + ss
       }
+    },
+    // 滑块触发改变音量事件
+    setVolume() {
+      this.$refs.player.volume = this.volume * 0.01;
+      console.log(this.$refs.player.volume)
+    },
+    //隐藏播放列表
+    hidePlaylist(){
+      this.isplayList=false
     }
-
   },
   computed: {
-    ...mapState(['musicList', 'isplaying', 'currenMusicInfo', 'currenMusicId', 'currenIndex']),
+    ...mapState(['musicList', 'isplaying', 'currenMusicInfo', 'currenMusicId', 'currenIndex','musicUrl']),
     musicInfo() {
-      // if (this.$store.getters.getmusicinfo.songs.length != 0) {
-      //   console.log(this.$store.getters.getmusicinfo)
-      //   return this.$store.getters.getmusicinfo.songs
-      // } else {
-      //   console.log(this.playedlist)
-      //   return this.playedlist
-      // }
-      console.log(this.musicList[this.currenIndex])
-      
-      // 每次更新获取歌曲的url
-      this.getMusicUrl()
-      this.setMusicDom()
+
+      //更新歌曲id 
+      if (this.musicList[this.currenIndex]) {
+        this.$store.commit('setCurrenMusicId', this.musicList[this.currenIndex].id)
+              // 每次更新获取歌曲的url
+          this.getMusicUrl()
+          
+      }
+
+
+
       //使用短路运算符来处理数据可能未生成的情况
       return this.musicList[this.currenIndex] ? this.musicList[this.currenIndex] : null
-
-
-
+    }
+  },
+  watch: {
+    /* 通过Vuex管理的播放状态,audio会自动播放 */
+    isplaying(val) {
+      /* 由于misicUrl第一次是状态改变后获取，所以第一次改变不要进入监听 */
+      if (!this.musicUrl) {
+        this.$refs.player.pause()
+        return
+      }
+      if (val) {
+        this.$refs.player.play()
+      } else {
+        this.$refs.player.pause()
+      }
     },
 
-  },
+  }
+
 }
 </script>
 <style lang="less" scoped>
-  .footer {
+.footer {
   display: flex;
+  position: relative;
   height: 100%;
   justify-content: space-between;
   align-items: center;
+  
+  .playList-div {
+    width: 400px;
+    position: absolute;
+    bottom: 90px;
+    right: 0;
+    // 优先级
+    z-index: 3;
+  }
 
   .left {
     height: 100%;
@@ -264,6 +365,11 @@ export default {
     img {
       height: 50px;
       margin-right: 10px;
+    }
+    div{
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
 
     .font-weight {
@@ -311,48 +417,60 @@ export default {
 
         position: relative;
         width: 100%;
-        height: 0.1rem;
+        height: 0.3rem;
         margin: 0 10px;
         border-radius: 0.2rem;
         background-color: #999999;
 
         .blue-bar {
-          height: 0.1rem;
+          height: 0.2rem;
           position: absolute;
           top: 0.1rem;
           left: 0;
           border-radius: 0.2rem;
           background-color: #1296db;
-
-          .circle {
-            width: 0.2rem;
-            height: 0.2rem;
-            position: absolute;
-            top: -0.05rem;
-            right: -0.01rem;
-            border-radius: 10px;
-            background-color: #fff;
-          }
         }
       }
 
       .progress-bar:hover {
-        height: 0.3rem;
+        height: 0.6rem;
 
         .blue-bar {
-          height: 0.2rem;
+          height: 0.4rem;
         }
+        .circle {
+            width: 0.8rem;
+            height: 0.8rem;
+            position: absolute;
+            top: -0.2rem;
+            right: -0.2rem;
+            border-radius: 10px;
+            background-color: #1296db;
+          }
       }
 
-      .right-time {}
     }
 
   }
 
   .right {
-    height: 100%;
+    display: flex;
     width: 200px;
+    height: 100%;
+    justify-content: end;
+    align-items: center;
+    
+    
+
     // margin-left: auto;
+    .volume {
+      margin-right: 20px;
+    }
+
+  }
+
+  .popperClass {
+    min-width: auto !important;
   }
 }
 </style>
