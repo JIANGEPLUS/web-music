@@ -2,7 +2,7 @@
   <div>
     <el-tabs v-model="activeName" @tab-click="handleTabClick(parentPath,activeName)">
       <el-tab-pane label="个性推荐" name="gexing"></el-tab-pane>
-      <el-tab-pane label="歌单" name="gedan">歌单</el-tab-pane>
+      <!-- <el-tab-pane label="歌单" name="gedan">歌单</el-tab-pane> -->
       <el-tab-pane label="排行榜" name="paihangbang"></el-tab-pane>
       <el-tab-pane label="歌手" name="geshou"></el-tab-pane>
     </el-tabs>

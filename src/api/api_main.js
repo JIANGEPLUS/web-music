@@ -103,4 +103,7 @@ export const getGedanData= (id) => axios.get('/playlist/detail', { params: {id }
 export const getSongArray= (id,limit) => axios.get('/playlist/track/all', { params: {id,limit} })
 
 //退出登录
-export const logout= () => axios.get('/logout')
+export const logout= () => axios.get('/logout',{params:{ timestamp: Date.now()}})
+
+// 获取歌词
+export const getLyric= (id) => axios.get('lyric',{params:{ id}})

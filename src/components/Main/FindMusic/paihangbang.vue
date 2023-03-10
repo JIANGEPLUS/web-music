@@ -3,6 +3,7 @@
     <h3>官方版</h3>
     <el-row :gutter="20" v-for="item in toplist.topArray.slice(0,4)" :key="item.id">
       <div class="div-top">
+        <!-- 左侧排行榜 -->
         <el-col :span="6" class="image">
           <div @click="toGeDan(item.id)">
             <el-image :src="item.coverImgUrl"></el-image>
@@ -11,7 +12,7 @@
             </div>
           </div>
         </el-col>
-        <!--  -->
+        <!--  排行榜对应歌单-->
         <el-col :span="17">
           <el-table :data="item.tracks.slice(0, 5)" stripe style="width: 100%" :show-header="false" height="160">
             <el-table-column type="index">
@@ -36,7 +37,7 @@
     <!--全球榜 -->
     <h3 class="">全球榜</h3>
     <div class="image-grid mtop-20">
-      <div v-for="item in toplist.topArray.slice(4)" :key="item.id" class="grid-item" @click="toGeDan(item.id)">
+      <div v-for="item in allList.slice(4)" :key="item.id" class="grid-item" @click="toGeDan(item.id)">
         <img :src="item.coverImgUrl" />
         <div class="play-count"><i class="el-icon-video-play"></i>{{ numberFormat(item.playCount) }}</div>
         <div class="text">{{ item.name }}</div>
@@ -82,8 +83,9 @@ export default {
       }
       // console.log(res)
     },
+    // 获取前四榜单的详细内容
     setTopList() {
-      for (let key of this.allList) {
+      for (let key of this.allList.slice(0,4)) {
         this.getTopList(key.id)
       }
       console.log(this.toplist)
@@ -158,7 +160,7 @@ export default {
   .image-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    // justify-content: space-between;
     gap: 10px;
 
     .grid-item {

@@ -1,5 +1,5 @@
 <template>
-  <!-- 专辑模块 -->
+  <!-- 搜索界面专辑模块 -->
   <div class="searchAlbum">
     <div class="album-div" v-for="album in SearchList.albums" :key="album.id">
       <el-image

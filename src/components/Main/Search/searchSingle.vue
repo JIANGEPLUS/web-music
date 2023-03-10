@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索界面单曲板块 -->
   <div class="single">
     <div class="button">
       <el-button-group class="play_button">

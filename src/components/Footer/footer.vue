@@ -1,11 +1,12 @@
 <template>
-  <div class="footer">
+  <div class="footer" ref="footerRef">
     <audio ref="player" :src="musicUrl" :volume="volume" @timeupdate="updateCurrentTime"></audio>
     <div v-if="musicInfo" class="left">
       <!-- <el-image style="width: 50px; height: 50px" 
         :src="musicInfo.songs[0].al.picUrl" fit="fit">
       </el-image> -->
-      <img :src="musicInfo.al.picUrl" object-fit=contain>
+      <!-- 弹出歌词界面 -->
+      <img :src="musicInfo.al.picUrl" object-fit=contain @click="toggleWindow">
       <div>
         <el-tooltip class="item" effect="dark" :content="musicInfo.name" placement="top">
           <div class="font-16 font-weight">{{ musicInfo.name }}</div>
@@ -29,7 +30,7 @@
         <i class=" pointer" @click="nextMusic"
           :class="{ 'icon-music-xiayishou-red-copy': nextIsHover, 'icon-music-xiayishou': !nextIsHover }"
           @mouseover="nextIsHover = true" @mouseout="nextIsHover = false"></i>
-        <i class=" pointer" :class="{ 'icon-music-ci-red-copy': lyricIsHover, 'icon-music-ci': !lyricIsHover }"
+        <i @click="toggleWindow" class=" pointer" :class="{ 'icon-music-ci-red-copy': lyricIsHover, 'icon-music-ci': !lyricIsHover }"
           @mouseover="lyricIsHover = true" @mouseout="lyricIsHover = false"></i>
       </div>
       <!-- 进度条 -->
@@ -50,8 +51,8 @@
         <el-popover placement="top" trigger="hover" width="100px" popper-class="popperClass">
           <!-- 要使用slot="reference"才能显示图标 -->
           <!-- 静音 -->
-          <i v-if="volume == 0" class="icon-music-music_mute volume" slot="reference" @click="volume"></i>
-          <i v-else class="icon-music-yinliang volume" slot="reference"></i>
+          <i v-if="volume == 0" class="icon-music-music_mute volume" slot="reference" @click="volumesilence"></i>
+          <i v-else class="icon-music-yinliang volume" slot="reference" @click="volumesilence"></i>
           <div class="volume-container">
             <el-slider v-model="volume" :vertical="true" height="120px" @change="setVolume" />
           </div>
@@ -65,7 +66,8 @@
       </div>
     </div>
 
-
+    <!-- 滚动歌词组件 -->
+    <lyric   class="lyric"  ref="lyricRef" :style="{ width:clientWidth+'px',height: windowHeight,bottom:lyricBottom }"></lyric>
   </div>
 </template>
 
@@ -74,6 +76,7 @@ import dayjs from 'dayjs'
 import { getUserplayedlist, getMusicUrl, getGedanData, getRecentPlayList, getSongArray } from '@/api/api_main';
 import { mapState, mapMutations } from 'vuex'
 import playList from './playList.vue'
+import lyric from './lyric.vue'
 export default {
   created() {
     this.getUserplayedlist()
@@ -89,7 +92,8 @@ export default {
     this.setVolume()
   },
   components: {
-    playList
+    playList,
+    lyric
   },
   data() {
     return {
@@ -113,7 +117,11 @@ export default {
       // 播放列表是否可视
       isplayList: false,
       // 进度条
-      bar_model:0  
+      bar_model:0,
+      //歌词页面控制元素
+      isWindowOpen: false,
+      windowHeight: '0px', 
+      lyricBottom:'0px'
     }
   },
   methods: {
@@ -188,23 +196,25 @@ export default {
       const { data: res } = await getRecentPlayList(10)
       if (res.code == 200) {
         // 初次默认播放列表为最近播放的歌单
-        if(res.data){
+        if(res.data.list.length>0){
           this.getSongArray(res.data.list[0].data.id)
+        }else{
+          return
         }
         // this.$store.commit('setMusicList',res.data.list)
       }
-      console.log(res)
+      // console.log(res)
     },
     // 获取目标歌单列表
     async getSongArray(id) {
       const { data: res } = await getSongArray(id)
       if (res.code == 200) {
-        console.log(this.musicList)
-        console.log(res.songs.findIndex(item=>item.id==this.currenMusicId))
+        // console.log(this.musicList)
+        // console.log(res.songs.findIndex(item=>item.id==this.currenMusicId))
         // 如果歌曲不在歌单中，则单独一个歌单
         if(res.songs.findIndex(item=>item.id==this.currenMusicId)!=-1){
           this.setMusicList(res.songs)
-          console.log(this.musicList)
+          // console.log(this.musicList)
         }
         //在得到歌单后，获取播放下标
         this.getCurrenIndex(this.currenMusicId)
@@ -262,7 +272,7 @@ export default {
       const musicWidth = this.$refs.runfatbar.offsetWidth// 底部进度条总宽      
       // 每秒更新进度条
       this.$refs.runbar.style.width=`${Math.floor(( time/ this.currenMusicInfo.totalTime)*musicWidth)}px` // 计算进度条所在比例
-      console.log(this.$refs.runbar.style.width)
+      // console.log(this.$refs.runbar.style.width)
     },
     currentTimeFormat(currentTime) {
       let ss = '00'
@@ -292,15 +302,30 @@ export default {
     // 滑块触发改变音量事件
     setVolume() {
       this.$refs.player.volume = this.volume * 0.01;
-      console.log(this.$refs.player.volume)
+      // console.log(this.$refs.player.volume)
     },
     //隐藏播放列表
     hidePlaylist(){
       this.isplayList=false
-    }
+    },
+    // 点击静音或恢复
+    volumesilence(){
+     [ this.volume,this.oldVolume]=[this.oldVolume,this.volume]
+    },
+    // 歌词页面展开
+    toggleWindow() {
+      console.log(this.isWindowOpen,this.windowHeight)
+      const footerRef=this.$refs.footerRef
+      let footerHeight=footerRef.offsetHeight
+      this.isWindowOpen = !this.isWindowOpen
+      console.log(this.clientWidth)
+      this.windowHeight = this.isWindowOpen ? (this.clientHeight-footerHeight )+ 'px' : '0px'
+      this.lyricBottom = this.isWindowOpen ? (footerHeight-5)+ 'px' : '0px'
+
+    },
   },
   computed: {
-    ...mapState(['musicList', 'isplaying', 'currenMusicInfo', 'currenMusicId', 'currenIndex','musicUrl']),
+    ...mapState(['clientWidth','musicList', 'isplaying', 'currenMusicInfo', 'currenMusicId', 'currenIndex','musicUrl','clientHeight']),
     musicInfo() {
 
       //更新歌曲id 
@@ -331,7 +356,18 @@ export default {
         this.$refs.player.pause()
       }
     },
+    currenMusicInfo:{
+      // 侦听器的处理函数
+      handler(newVal) {
+        // 如果播放结束则下一首
+        if((newVal.totalTime>=newVal.currentTime)&&newVal.totalTime!=0){
+          console.log('下一首')
+          // this.nextMusic()
+        }
+      },
+      deep: true
 
+    }
   }
 
 }
@@ -339,7 +375,7 @@ export default {
 <style lang="less" scoped>
 .footer {
   display: flex;
-  position: relative;
+  // position: relative;
   height: 100%;
   justify-content: space-between;
   align-items: center;
@@ -363,7 +399,8 @@ export default {
 
     // margin-right: auto;
     img {
-      height: 50px;
+      width: 50px;
+      aspect-ratio: 1; /* 设置宽高比为1:1 */
       margin-right: 10px;
     }
     div{
@@ -471,6 +508,15 @@ export default {
 
   .popperClass {
     min-width: auto !important;
+  }
+  // 歌词页面属性
+  .lyric {
+    position: absolute;
+    overflow:hidden;
+    left: 0;
+    z-index: 99;
+    background: linear-gradient(to bottom, rgba(219,219,219,1) 0%, rgba(219,219,219,1) 1%, rgba(209,209,209,1) 1%, rgba(255,255,255,1) 100%);
+    transition: height 0.5s;
   }
 }
 </style>

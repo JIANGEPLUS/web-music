@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索界面视频板块 -->
   <div class="searchVideo">
     <!-- 搜索结果视频展示 -->
       <div class="viedeo-div">

@@ -14,9 +14,9 @@
         <el-menu-item index="FindMusic" route="/main/FindMusic">发现音乐</el-menu-item>
         <el-menu-item-group title="我的音乐" class="item_group_title">
           <el-menu-item  :route="'/main/gedanpage/songlist?id='+Userplaylist[0].id" index="mylike"><i class="icon-music-xihuan" ></i>我喜欢的音乐</el-menu-item>
-          <el-menu-item index="Download" ><i class="el-icon-download"></i>本地与下载</el-menu-item>
+          <!-- <el-menu-item index="Download" ><i class="el-icon-download"></i>本地与下载</el-menu-item> -->
           <el-menu-item index="Played" route="/main/Played" ><i class="el-icon-tickets"></i>最近播放</el-menu-item>
-          <el-menu-item index="MyCollection" ><i class="el-icon-star-off"></i>我的收藏</el-menu-item>
+          <!-- <el-menu-item index="MyCollection" ><i class="el-icon-star-off"></i>我的收藏</el-menu-item> -->
         </el-menu-item-group>
         <el-menu-item-group title="我的歌单" class="item_group_title">
           <!-- Userplaylist排除掉我喜欢的音乐和每日推荐的歌单 -->

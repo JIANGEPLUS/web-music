@@ -28,6 +28,9 @@ export default new Vuex.Store({
     currenIndex: 0,
     /* 最近播放列表 */
     historyList: [],
+    // 客户端窗口高度
+    clientHeight:0,
+    clientWidth:0
   },
   getters: {
     getMusicUrl(state){
@@ -87,32 +90,34 @@ export default new Vuex.Store({
     setMusicUrl(state,musicUrl){
       state.musicUrl=musicUrl
     },
+    setClientHeight(state,clientHeight){
+      state.clientHeight=clientHeight
+    },
+    setClientWidth(state,clientWidth){
+      state.clientWidth=clientWidth
+    },
     reset(state){
-      state={
-        userinfo:{},
-        gedanid:'',
-        uid:'',
-        musicinfo:{
-          songs:[]
-        },
+        state.userinfo={},
+        state.gedanid='',
+        state.uid='',
+        state.musicinfo={ songs:[]},
         /* 播放列表 */
-        musicList: [],
+        state.musicList= [],
         //当前播放状态
-        isplaying:false,
+        state.isplaying=false,
         /* 播放音乐的总时间和当前时间 */
-        currenMusicInfo: {
+        state.currenMusicInfo= {
           totalTime: 0,
           currentTime: 0
         },
         // 当前音乐url
-        musicUrl:'',
+        state.musicUrl='',
         /* 当前播放的id */
-        currenMusicId: 0,
+        state.currenMusicId= 0,
         /* 当前播放的列表下标 */
-        currenIndex: 0,
+        state.currenIndex= 0,
         /* 最近播放列表 */
-        historyList: [],
-      }
+        state.historyList= []
     }
   },
   actions: {

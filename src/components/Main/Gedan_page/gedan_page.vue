@@ -23,7 +23,7 @@
           <!--播放 -->
           <el-col :span="5">
             <el-button-group class="play_button">
-              <el-button type="danger" size="mini" round><i class="el-icon-caret-right"></i>播放全部</el-button>
+              <el-button type="danger" size="mini" round @click="palyAllMusic"><i class="el-icon-caret-right"></i>播放全部</el-button>
               <el-button class="play_button2" type="danger" size="mini" round icon="el-icon-plus"></el-button>
             </el-button-group>
           </el-col>
@@ -63,8 +63,10 @@
 </template>
 
 <script>
-import {handleTabClick,getGedanData,getSongArray} from '@/api/api_main.js'
+// 导入setCurrenMusicId,getCurrenIndex,updateIspalying给playMusic
+import {handleTabClick,getGedanData,getSongArray,playMusic} from '@/api/api_main.js'
 import dayjs from 'dayjs'
+import { mapMutations } from 'vuex'
 export default {
   created() {
     // vuex传值
@@ -88,7 +90,11 @@ export default {
       activeName: this.$route.path.split("/").pop(),
       id: '',
       playlist: {
-        creator: {}
+        creator: {},
+        subscribedCount:0,
+        trackCount:0,
+        playCount:0,
+        commentCount:0 
       },
       // 歌曲数组
       songArray: [],
@@ -96,7 +102,9 @@ export default {
       likeArray: [],
     }
   },
+  // playMusic 调用'setCurrenMusicId','getCurrenIndex','updateIspalying'
   methods: {
+    ...mapMutations(['setMusicList','setCurrenMusicId','getCurrenIndex','updateIspalying']),
     handleTabClick,
     dayjs,
     // 标签跳转路由选着歌单界面还是评论界面
@@ -131,6 +139,13 @@ export default {
       }
       
       // console.log(res)
+    },
+    // 播放全部歌曲
+     palyAllMusic(){
+      // 设置歌曲列表
+      this.setMusicList(this.songArray)
+      playMusic(this,this.songArray[0])
+      console.log(this.songArray)
     },
   },
   watch: {

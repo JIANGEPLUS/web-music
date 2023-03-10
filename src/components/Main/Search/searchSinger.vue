@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索界面歌手板块 -->
   <div class="searchSinger">
     <div class="singer-div" v-for="singer in singerArray" :key="singer.id">
       <el-image

@@ -1,5 +1,5 @@
 <template>
-  <!-- 专辑模块 -->
+  <!-- 搜索界面歌单模块 -->
   <div class="searchMusicList">
     <div class="musiclist-div" v-for="musiclist in SearchList.playlists
 " :key="musiclist.id">

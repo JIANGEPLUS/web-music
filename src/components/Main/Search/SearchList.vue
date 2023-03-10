@@ -1,8 +1,9 @@
 <template>
+  <!-- 搜索界面main界面 -->
   <div class="searchList">
     <h3>搜索 {{ this.$route.query.keywords }}</h3>
     <p>你可能感兴趣</p>
-    <div class="title-img">
+    <div class="title-img" v-if="searchTitle.img1v1Url">
       <img :src="searchTitle.img1v1Url">
       <div>
         <div>{{ '歌手：'+searchTitle.name + '(' + searchTitle.alias[0] + ')' }}</div>
@@ -59,22 +60,33 @@ export default {
     async getSearchTitle() {
       const { data: res } = await this.$http.get('/search/multimatch', { params: this.searchInfo })
       if (res.code == 200) {
-        // 专辑数组添加新的专辑
+        try{
+         // 专辑数组添加新的专辑
+        // console.log(res)
         this.searchTitle = res.result.artist[0]
+        } catch(error){
+          return
+        }
 
       }
-      // console.log(this.searchTitle)
+      console.log(this.searchTitle)
     },
     // 获取搜索数据
     async getSearchList() {
       const { data: res } = await this.$http.get('/cloudsearch', { params: this.searchInfo })
       if (res.code == 200) {
         // 专辑数组添加新的专辑
-        this.SearchList = res.result
-        this.SearchList.limit=this.searchInfo.limit
+        // console.log(res)
+        try{
+          this.SearchList = res.result
+          this.SearchList.limit=this.searchList.limit
+        } catch(error){
+          return
+        }
+
 
       }
-      console.log(this.SearchList)
+      // console.log(this.SearchList)
     }
     ,
     handleClick() {
